@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 
 namespace Unplugged.Binding.Tests
@@ -74,7 +73,7 @@ namespace Unplugged.Binding.Tests
         [Test]
         public void InitializeSameNames()
         {
-            var expected = "Some expected text";
+            const string expected = "Some expected text";
             var viewModel = new { BasicString = expected, UnusedInVM = "whatever" };
             var view = new BasicObject();
 
@@ -87,7 +86,7 @@ namespace Unplugged.Binding.Tests
         [Test]
         public void UpdateSameNames()
         {
-            var expected = "Some changed text";
+            const string expected = "Some changed text";
             var viewModel = new BasicViewModel();
             var view = new BasicObject();
             Subject.Bind(viewModel, view);
@@ -100,7 +99,7 @@ namespace Unplugged.Binding.Tests
         [Test]
         public void InitializeControlsTextProperty()
         {
-            var expected = "Expected text";
+            const string expected = "Expected text";
             var viewModel = new SampleStaticViewModel { RockDoveText = expected };
             var view = new SampleView();
             
@@ -113,7 +112,7 @@ namespace Unplugged.Binding.Tests
         [Test]
         public void UpdateControlsTextProperty()
         {
-            var expected = "Changed";
+            const string expected = "Changed";
             var viewModel = new SampleViewModel { PumaText = "Initial value" };
             var view = new SampleView();
             Subject.Bind(viewModel, view);
@@ -121,6 +120,32 @@ namespace Unplugged.Binding.Tests
             viewModel.PumaText = expected;
             
             Assert.That(view.Puma.Text, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void InitializeWithControlSuffix()
+        {
+            const string expected = "Expected text";
+            var viewModel = new SampleStaticViewModel { RockDoveText = expected };
+            var view = new SampleViewWithSuffix();
+
+            Subject.Bind(viewModel, view);
+
+            Assert.That(view.RockDoveLabel.Text, Is.EqualTo(expected));
+            Assert.That(view.SomeOtherLabel.Text, Is.EqualTo(default(string)));
+        }
+
+        [Test]
+        public void UpdateControlsTextPropertyWithSuffix()
+        {
+            const string expected = "Changed";
+            var viewModel = new SampleViewModel { PumaText = "Initial value" };
+            var view = new SampleViewWithSuffix();
+            Subject.Bind(viewModel, view);
+
+            viewModel.PumaText = expected;
+
+            Assert.That(view.PumaLabel.Text, Is.EqualTo(expected));
         }
 
         /// Requirements:
@@ -136,9 +161,10 @@ namespace Unplugged.Binding.Tests
         /// - FooText : Foo.Text
         /// - FooText : FooLabel.Text
         /// 
-        /// Log: Control does not have property of given name (e.g. Text)
-        /// Log: Mismatched types
-        /// 
+        /// Nice to Have:
+        /// - Log: Control does not have property of given name (e.g. Text)
+        /// - Log: Mismatched types
+        /// - Cache reflection
 
         public Binder Subject { get; set; }
         [SetUp]
