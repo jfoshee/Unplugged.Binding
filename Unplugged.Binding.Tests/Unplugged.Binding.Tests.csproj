@@ -41,4 +41,7 @@
       <Name>Unplugged.Binding</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BinderTest.cs" />
+  </ItemGroup>
 </Project>
