@@ -1,12 +1,14 @@
+using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Reflection;
 
 namespace Unplugged.Binding
 {
-    public class Binder
+    public class Binder : IDisposable
     {
         object _view;
+        INotifyPropertyChanged _viewModel;
         readonly string[] _suffices = { "Label", "Text" };
 
         void UpdateValue(object viewModel, PropertyInfo vmProperty, object view, PropertyInfo viewProperty)
@@ -39,8 +41,9 @@ namespace Unplugged.Binding
 
                 UpdateValue(viewModel, vmProperty, view, viewProperty);
             }
-            if (viewModel is INotifyPropertyChanged)
-                ((INotifyPropertyChanged)viewModel).PropertyChanged += HandlePropertyChanged;
+            _viewModel = viewModel as INotifyPropertyChanged;
+            if (_viewModel != null)
+                _viewModel.PropertyChanged += HandlePropertyChanged;
         }
 
         private string GetBaseName(string name)
@@ -57,6 +60,11 @@ namespace Unplugged.Binding
             var matchingProperties = _view.GetType().GetProperties().Where(p => baseName == GetBaseName(p.Name));
             var viewProperty = matchingProperties.First();
             UpdateValue(sender, sender.GetType().GetProperty(e.PropertyName), _view, viewProperty);
+        }
+
+        public void Dispose()
+        {
+            _viewModel.PropertyChanged -= HandlePropertyChanged;
         }
     }
 

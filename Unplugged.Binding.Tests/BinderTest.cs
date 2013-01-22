@@ -148,6 +148,21 @@ namespace Unplugged.Binding.Tests
             Assert.That(view.PumaLabel.Text, Is.EqualTo(expected));
         }
 
+        [Test]
+        public void UnhookOnDispose()
+        {
+            const string expected = "Initial value";
+            var viewModel = new SampleViewModel { PumaText = expected };
+            var view = new SampleView();
+            Subject.Bind(viewModel, view);
+            Subject.Dispose();
+            Subject.Dispose();
+
+            viewModel.PumaText = "changed";
+
+            Assert.That(view.Puma.Text, Is.EqualTo(expected));
+        }
+
         /// Requirements:
         /// 1. Initialize
         /// 2. Update on NotifyPropertyChanged
