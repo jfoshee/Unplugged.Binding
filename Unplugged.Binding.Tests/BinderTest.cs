@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace Unplugged.Binding.Tests
@@ -161,6 +162,24 @@ namespace Unplugged.Binding.Tests
             viewModel.PumaText = "changed";
 
             Assert.That(view.Puma.Text, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void InvokeWithGivenInvoker()
+        {
+            Action savedForLater = null;
+            Action<Action> updateViewInvoker = (a) => { savedForLater = a; };
+            Subject.UpdateView = updateViewInvoker;
+            const string expected = "Some changed text";
+            var viewModel = new BasicViewModel();
+            var view = new BasicObject();
+            Subject.Bind(viewModel, view);
+            viewModel.BasicString = expected;
+            Assert.That(view.BasicString, Is.EqualTo(default(string)));
+
+            savedForLater();
+            
+            Assert.That(view.BasicString, Is.EqualTo(expected));
         }
 
         /// Requirements:

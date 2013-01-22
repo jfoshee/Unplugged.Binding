@@ -11,21 +11,7 @@ namespace Unplugged.Binding
         INotifyPropertyChanged _viewModel;
         readonly string[] _suffices = { "Label", "Text" };
 
-        void UpdateValue(object viewModel, PropertyInfo vmProperty, object view, PropertyInfo viewProperty)
-        {
-            var value = vmProperty.GetValue(viewModel);
-            var baseName = GetBaseName(viewProperty.Name);
-            var controlPropertyName = vmProperty.Name.Substring(baseName.Length);
-            var control = viewProperty.GetValue(view);
-            if (control != null)
-            {
-                var controlProperty = control.GetType().GetProperty(controlPropertyName);
-//                if (controlProperty != null)
-                    controlProperty.SetValue(control, value);
-            }
-            else
-                viewProperty.SetValue(view, value);
-        }
+        public Action<Action> UpdateView { get; set; }
 
         public void Bind(object viewModel, object view)
         {
@@ -46,14 +32,40 @@ namespace Unplugged.Binding
                 _viewModel.PropertyChanged += HandlePropertyChanged;
         }
 
-        private string GetBaseName(string name)
+        void UpdateValue(object viewModel, PropertyInfo vmProperty, object view, PropertyInfo viewProperty)
+        {
+            var value = vmProperty.GetValue(viewModel);
+            var baseName = GetBaseName(viewProperty.Name);
+            var controlPropertyName = vmProperty.Name.Substring(baseName.Length);
+            var control = viewProperty.GetValue(view);
+            if (control != null)
+            {
+                var controlProperty = control.GetType().GetProperty(controlPropertyName);
+//                if (controlProperty != null)
+                SetValue(control, controlProperty, value);
+            }
+            else
+            {
+                SetValue(view, viewProperty, value);
+            }
+        }
+
+        void SetValue(object view, PropertyInfo viewProperty, object value)
+        {
+            if (UpdateView == null)
+                viewProperty.SetValue(view, value);
+            else
+                UpdateView(() => viewProperty.SetValue(view, value));
+        }
+
+        string GetBaseName(string name)
         {
             foreach (var suffix in _suffices.Where(name.EndsWith))
                 return name.Substring(0, name.Length - suffix.Length);
             return name;
         }
 
-        void HandlePropertyChanged (object sender, PropertyChangedEventArgs e)
+        void HandlePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var vmProperty = sender.GetType().GetProperty(e.PropertyName);
             var baseName = GetBaseName(vmProperty.Name);
