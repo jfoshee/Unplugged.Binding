@@ -21,12 +21,12 @@ namespace Unplugged.Binding.Tests
             }
         }
 
-        class Label 
+        class Label
         {
             public string Text { get; set; }
         }
 
-        class SampleView 
+        class SampleView
         {
             public Label RockDove { get; set; }
             public Label Puma { get; set; }
