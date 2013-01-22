@@ -24,7 +24,6 @@ namespace Unplugged.Binding
                 var matchingProperties = viewModel.GetType().GetProperties().Where(p => p.Name.StartsWith(baseName));
                 var vmProperty = matchingProperties.FirstOrDefault();
                 if (vmProperty == null) continue;
-
                 UpdateValue(viewModel, vmProperty, view, viewProperty);
             }
             _viewModel = viewModel as INotifyPropertyChanged;
@@ -36,18 +35,18 @@ namespace Unplugged.Binding
         {
             var value = vmProperty.GetValue(viewModel);
             var baseName = GetBaseName(viewProperty.Name);
-            var controlPropertyName = vmProperty.Name.Substring(baseName.Length);
-            var control = viewProperty.GetValue(view);
-            if (control != null)
+            if (vmProperty.Name.Length > baseName.Length)
             {
-                var controlProperty = control.GetType().GetProperty(controlPropertyName);
-//                if (controlProperty != null)
-                SetValue(control, controlProperty, value);
+                var controlPropertyName = vmProperty.Name.Substring(baseName.Length);
+                var control = viewProperty.GetValue(view);
+                if (control != null)
+                {
+                    var controlProperty = control.GetType().GetProperty(controlPropertyName);
+                    SetValue(control, controlProperty, value);
+                }
             }
             else
-            {
                 SetValue(view, viewProperty, value);
-            }
         }
 
         void SetValue(object view, PropertyInfo viewProperty, object value)
@@ -89,7 +88,11 @@ namespace Unplugged.Binding
 
         public static void SetValue(this PropertyInfo propertyInfo, object obj, object value)
         {
-            propertyInfo.SetValue(obj, value, new object[]{});
+            if (propertyInfo == null)
+                return;
+            var setter = propertyInfo.GetSetMethod();
+            if (setter != null && setter.IsPublic)
+                propertyInfo.SetValue(obj, value, new object[]{});
         }
     }
 }

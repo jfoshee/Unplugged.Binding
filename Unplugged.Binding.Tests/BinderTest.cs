@@ -6,6 +6,8 @@ namespace Unplugged.Binding.Tests
     [TestFixture]
     public class BinderTest
     {
+        #region Samples
+
         class SampleStaticViewModel
         {
             public string RockDoveText { get; set; }
@@ -69,7 +71,22 @@ namespace Unplugged.Binding.Tests
                 get { return _basicString; }
                 set { _basicString = value; Notify("BasicString"); }
             }
+
+            object _basicReference;
+            public object BasicReference
+            {
+                get { return _basicReference; }
+                set { _basicReference = value; Notify("BasicReference"); }
+            }
         }
+
+        class BasicViewWithPrivateSetter
+        {
+            public string BasicString { get; private set; }
+            public object BasicReference { get { return "Hello"; } }
+        }
+
+        #endregion
 
         [Test]
         public void InitializeSameNames()
@@ -181,6 +198,44 @@ namespace Unplugged.Binding.Tests
             
             Assert.That(view.BasicString, Is.EqualTo(expected));
         }
+
+        [Test]
+        public void IgnorePropertiesWithPrivateSetter()
+        {
+            var viewModel = new BasicViewModel { BasicString = "foo" };
+            var view = new BasicViewWithPrivateSetter();
+
+            Subject.Bind(viewModel, view);
+
+            Assert.That(view.BasicString, Is.EqualTo(default(string)));
+        }
+
+        [Test]
+        public void IgnorePropertiesWithoutSetter()
+        {
+            const string expected = "Exp";
+            var viewModel = new BasicViewModel { BasicString = "foo" };
+            var view = new { BasicString = expected };
+
+            Subject.Bind(viewModel, view);
+
+            Assert.That(view.BasicString, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void HasPriorValue()
+        {
+            var expected = new SampleView();
+            var viewModel = new BasicViewModel { BasicReference = expected };
+            var view = new BasicObject { BasicReference = this};
+
+            Subject.Bind(viewModel, view);
+
+            Assert.That(view.BasicReference, Is.SameAs((expected)));
+        }
+
+        /// To do: 
+        /// - Name conflicts with System.Reflection.Binder
 
         /// Requirements:
         /// 1. Initialize
