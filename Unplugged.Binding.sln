@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unplugged.Binding", "Unplugged.Binding\Unplugged.Binding.csproj", "{363F3EE4-B6D4-4849-844F-E7CFCD2F979C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unplugged.Binding.Tests", "Unplugged.Binding.Tests\Unplugged.Binding.Tests.csproj", "{C752C343-F63A-47C1-B1AE-74BBFA989309}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{363F3EE4-B6D4-4849-844F-E7CFCD2F979C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{363F3EE4-B6D4-4849-844F-E7CFCD2F979C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{363F3EE4-B6D4-4849-844F-E7CFCD2F979C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{363F3EE4-B6D4-4849-844F-E7CFCD2F979C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C752C343-F63A-47C1-B1AE-74BBFA989309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C752C343-F63A-47C1-B1AE-74BBFA989309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C752C343-F63A-47C1-B1AE-74BBFA989309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C752C343-F63A-47C1-B1AE-74BBFA989309}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Unplugged.Binding\Unplugged.Binding.csproj
+	EndGlobalSection
+EndGlobal
