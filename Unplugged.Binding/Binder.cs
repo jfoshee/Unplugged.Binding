@@ -14,8 +14,14 @@ namespace Unplugged.Binding
             var value = vmProperty.GetValue(viewModel);
             var controlPropertyName = vmProperty.Name.Substring(viewProperty.Name.Length);
             var control = viewProperty.GetValue(view);
-            var controlProperty = control.GetType().GetProperty(controlPropertyName);
-            controlProperty.SetValue(control, value);
+            if (control != null)
+            {
+                var controlProperty = control.GetType().GetProperty(controlPropertyName);
+//                if (controlProperty != null)
+                    controlProperty.SetValue(control, value);
+            }
+            else
+                viewProperty.SetValue(view, value);
         }
 
         public void Bind(object viewModel, object view)
