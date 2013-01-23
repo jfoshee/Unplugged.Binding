@@ -48,12 +48,12 @@ namespace Unplugged.Binding
             void UpdateValue(object viewModel, PropertyInfo vmProperty, object view, PropertyInfo viewProperty)
             {
                 var value = vmProperty.GetValue(viewModel);
-                var baseName = GetBaseName(viewProperty.Name);
                 if (vmProperty.PropertyType != viewProperty.PropertyType)
                 {
                     var control = viewProperty.GetValue(view);
                     if (control != null)
                     {
+                        var baseName = GetBaseName(viewProperty.Name);
                         var controlPropertyName = (vmProperty.Name.Length > baseName.Length) ?
                             vmProperty.Name.Substring(baseName.Length) :
                             "Text";
@@ -71,6 +71,10 @@ namespace Unplugged.Binding
 
             void SetValue(object view, PropertyInfo viewProperty, object value)
             {
+                if (viewProperty == null)
+                    return;
+                if (value != null && viewProperty.PropertyType == typeof (string) && value.GetType() != typeof (string))
+                    value = value.ToString();
                 if (_updateView == null)
                     viewProperty.SetValue(view, value);
                 else
@@ -114,8 +118,6 @@ namespace Unplugged.Binding
 
         public static void SetValue(this PropertyInfo propertyInfo, object obj, object value)
         {
-            if (propertyInfo == null)
-                return;
             var setter = propertyInfo.GetSetMethod();
             if (setter != null)
                 propertyInfo.SetValue(obj, value, new object[]{});

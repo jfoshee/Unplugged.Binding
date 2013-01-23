@@ -300,9 +300,19 @@ namespace Unplugged.Binding.Tests
             Assert.That(view.PumaLabel.Text, Is.EqualTo(expected));
         }
 
+        [Test]
+        public void ConvertToStringIfDestinationIsStringButSourceIsNot()
+        {
+            var viewModel = new {Puma = 12};
+            var view = new SampleViewWithSuffix();
+
+            Subject.Bind(viewModel, view);
+
+            Assert.That(view.PumaLabel.Text, Is.EqualTo("12"));
+        }
+
         /// To do: 
-        /// - Specify a view Class.Property (e.g. UILabel.Text) to bind to
-        /// - Call ToString() if the destination is a String
+        /// - 
 
         /// Requirements:
         /// 1. Initialize
