@@ -15,6 +15,23 @@ namespace Unplugged.Binding.Tests
 
         class SampleViewModel : ViewModelBase
         {
+            string _puma;
+            public string Puma
+            {
+                get { return _puma; }
+                set { _puma = value; Notify("Puma"); }
+            }
+
+            string _private;
+            public string Private
+            {
+                get { return _private; }
+                set { _private = value; Notify("Private"); }
+            }
+        }
+
+        class SampleViewModelWithSuffix : ViewModelBase
+        {
             string _pumaText;
             public string PumaText
             {
@@ -145,7 +162,7 @@ namespace Unplugged.Binding.Tests
         public void UpdateControlsTextProperty()
         {
             const string expected = "Changed";
-            var viewModel = new SampleViewModel { PumaText = "Initial value" };
+            var viewModel = new SampleViewModelWithSuffix { PumaText = "Initial value" };
             var view = new SampleView();
             Subject.Bind(viewModel, view);
             
@@ -171,7 +188,7 @@ namespace Unplugged.Binding.Tests
         public void UpdateControlsTextPropertyWithSuffix()
         {
             const string expected = "Changed";
-            var viewModel = new SampleViewModel { PumaText = "Initial value" };
+            var viewModel = new SampleViewModelWithSuffix { PumaText = "Initial value" };
             var view = new SampleViewWithSuffix();
             Subject.Bind(viewModel, view);
 
@@ -184,7 +201,7 @@ namespace Unplugged.Binding.Tests
         public void UnhookOnDispose()
         {
             const string expected = "Initial value";
-            var viewModel = new SampleViewModel { PumaText = expected };
+            var viewModel = new SampleViewModelWithSuffix { PumaText = expected };
             var view = new SampleView();
             var binding = Subject.Bind(viewModel, view);
 
@@ -260,7 +277,7 @@ namespace Unplugged.Binding.Tests
         public void MustFindPrivateProperties()
         {
             const string expected = "We have to do this because MonoTouch Outlets are non-public";
-            var viewModel = new SampleViewModel();
+            var viewModel = new SampleViewModelWithSuffix();
             var view = new SampleViewWithSuffix();
             Subject.Bind(viewModel, view);
 
@@ -269,8 +286,23 @@ namespace Unplugged.Binding.Tests
             Assert.That(view.PrivateLabelText(), Is.EqualTo(expected));
         }
 
+        [Test]
+        public void MatchViewWithSuffixAndControlProperty()
+        {
+            const string expected = "changed";
+            var viewModel = new SampleViewModel { Puma = "initial" };
+            var view = new SampleViewWithSuffix();
+            Subject.Bind(viewModel, view);
+            Assert.That(view.PumaLabel.Text, Is.EqualTo("initial"));
+
+            viewModel.Puma = expected;
+
+            Assert.That(view.PumaLabel.Text, Is.EqualTo(expected));
+        }
+
         /// To do: 
-        /// - 
+        /// - Specify a view Class.Property (e.g. UILabel.Text) to bind to
+        /// - Call ToString() if the destination is a String
 
         /// Requirements:
         /// 1. Initialize
@@ -284,6 +316,8 @@ namespace Unplugged.Binding.Tests
         /// - Foo : Foo
         /// - FooText : Foo.Text
         /// - FooText : FooLabel.Text
+        /// - Foo : FooLabel.Text
+        /// - Foo : Foo.Text
         /// 
         /// Nice to Have:
         /// - Log: Control does not have property of given name (e.g. Text)
@@ -298,4 +332,3 @@ namespace Unplugged.Binding.Tests
         }
     }
 }
-

@@ -49,15 +49,20 @@ namespace Unplugged.Binding
             {
                 var value = vmProperty.GetValue(viewModel);
                 var baseName = GetBaseName(viewProperty.Name);
-                if (vmProperty.Name.Length > baseName.Length)
+                if (vmProperty.PropertyType != viewProperty.PropertyType)
                 {
-                    var controlPropertyName = vmProperty.Name.Substring(baseName.Length);
                     var control = viewProperty.GetValue(view);
                     if (control != null)
                     {
+                        var controlPropertyName = (vmProperty.Name.Length > baseName.Length) ?
+                            vmProperty.Name.Substring(baseName.Length) :
+                            "Text";
                         var controlProperty = control.GetType().GetProperty(controlPropertyName);
-                        Console.WriteLine("Setting: {0}.{1} = {2}", control.GetType().Name, controlPropertyName, value);
-                        SetValue(control, controlProperty, value);
+                        if (controlProperty != null)
+                        {
+                            Console.WriteLine("Setting: {0}.{1} = {2}", control.GetType().Name, controlPropertyName, value);
+                            SetValue(control, controlProperty, value);
+                        }
                     }
                 }
                 else
