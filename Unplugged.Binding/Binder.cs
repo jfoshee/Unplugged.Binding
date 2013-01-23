@@ -1,6 +1,7 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 
 namespace Unplugged.Binding
@@ -16,12 +17,11 @@ namespace Unplugged.Binding
         public void Bind(object viewModel, object view)
         {
             _view = view;
-
-            var viewProperties = view.GetType().GetProperties();
+            var viewProperties = GetProperties(view);
             foreach (var viewProperty in viewProperties)
             {
                 var baseName = GetBaseName(viewProperty.Name);
-                var matchingProperties = viewModel.GetType().GetProperties().Where(p => p.Name.StartsWith(baseName));
+                var matchingProperties = GetProperties(viewModel).Where(p => p.Name.StartsWith(baseName));
                 var vmProperty = matchingProperties.FirstOrDefault();
                 if (vmProperty == null) continue;
                 UpdateValue(viewModel, vmProperty, view, viewProperty);
@@ -68,10 +68,15 @@ namespace Unplugged.Binding
         {
             var vmProperty = sender.GetType().GetProperty(e.PropertyName);
             var baseName = GetBaseName(vmProperty.Name);
-            var matchingProperties = _view.GetType().GetProperties().Where(p => baseName == GetBaseName(p.Name));
+            var matchingProperties = GetProperties(_view).Where(p => baseName == GetBaseName(p.Name));
             var viewProperty = matchingProperties.FirstOrDefault();
             if (viewProperty != null)
                 UpdateValue(sender, vmProperty, _view, viewProperty);
+        }
+
+        static IEnumerable<PropertyInfo> GetProperties(object obj)
+        {
+            return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         }
 
         public void Dispose()
@@ -92,7 +97,7 @@ namespace Unplugged.Binding
             if (propertyInfo == null)
                 return;
             var setter = propertyInfo.GetSetMethod();
-            if (setter != null && setter.IsPublic)
+            if (setter != null)
                 propertyInfo.SetValue(obj, value, new object[]{});
         }
     }

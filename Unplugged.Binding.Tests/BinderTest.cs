@@ -21,6 +21,13 @@ namespace Unplugged.Binding.Tests
                 get { return _pumaText; }
                 set { _pumaText = value; Notify("PumaText"); }
             }
+
+            string _privateText;
+            public string PrivateText
+            {
+                get { return _privateText; }
+                set { _privateText = value; Notify("PrivateText"); }
+            }
         }
 
         class Label
@@ -47,12 +54,19 @@ namespace Unplugged.Binding.Tests
             public Label RockDoveLabel { get; set; }
             public Label PumaLabel { get; set; }
             public Label SomeOtherLabel { get; set; }
+            Label PrivateLabel { get; set; }
             
+            public string PrivateLabelText()
+            {
+                return PrivateLabel.Text;
+            }
+
             public SampleViewWithSuffix()
             {
                 RockDoveLabel = new Label();
                 PumaLabel = new Label();
                 SomeOtherLabel = new Label();
+                PrivateLabel = new Label();
             }
         }
 
@@ -241,6 +255,19 @@ namespace Unplugged.Binding.Tests
             var view = new SampleView();
             Subject.Bind(viewModel, view);
             viewModel.BasicReference = this;
+        }
+
+        [Test]
+        public void MustFindPrivateProperties()
+        {
+            const string expected = "We have to do this because MonoTouch Outlets are non-public";
+            var viewModel = new SampleViewModel();
+            var view = new SampleViewWithSuffix();
+            Subject.Bind(viewModel, view);
+
+            viewModel.PrivateText = expected;
+
+            Assert.That(view.PrivateLabelText(), Is.EqualTo(expected));
         }
 
         /// To do: 
