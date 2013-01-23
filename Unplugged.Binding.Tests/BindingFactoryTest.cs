@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Unplugged.Binding.Tests
 {
     [TestFixture]
-    public class BinderTest
+    public class BindingFactoryTest
     {
         #region Samples
 
@@ -186,12 +186,11 @@ namespace Unplugged.Binding.Tests
             const string expected = "Initial value";
             var viewModel = new SampleViewModel { PumaText = expected };
             var view = new SampleView();
-            Subject.Bind(viewModel, view);
-            Subject.Dispose();
-            Subject.Dispose();
+            var binding = Subject.Bind(viewModel, view);
+
+            binding.Dispose();
 
             viewModel.PumaText = "changed";
-
             Assert.That(view.Puma.Text, Is.EqualTo(expected));
         }
 
@@ -271,8 +270,7 @@ namespace Unplugged.Binding.Tests
         }
 
         /// To do: 
-        /// - Name conflicts with System.Reflection.Binder
-        /// - Call Bind w/ more than 1 view & viewModel
+        /// - 
 
         /// Requirements:
         /// 1. Initialize
@@ -292,11 +290,11 @@ namespace Unplugged.Binding.Tests
         /// - Log: Mismatched types
         /// - Cache reflection
 
-        public Binder Subject { get; set; }
+        public BindingFactory Subject { get; set; }
         [SetUp]
         public void Setup()
         {
-            Subject = new Binder();
+            Subject = new BindingFactory();
         }
     }
 }
