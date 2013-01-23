@@ -6,8 +6,6 @@ using System.Reflection;
 
 namespace Unplugged.Binding
 {
-
-
     public class BindingFactory
     {
         public Action<Action> UpdateView { get; set; }
@@ -58,6 +56,7 @@ namespace Unplugged.Binding
                     if (control != null)
                     {
                         var controlProperty = control.GetType().GetProperty(controlPropertyName);
+                        Console.WriteLine("Setting: {0}.{1} = {2}", control.GetType().Name, controlPropertyName, value);
                         SetValue(control, controlProperty, value);
                     }
                 }
@@ -82,12 +81,16 @@ namespace Unplugged.Binding
 
             void HandlePropertyChanged(object sender, PropertyChangedEventArgs e)
             {
+                Console.WriteLine("PropertyChanged: {0}", e.PropertyName);
                 var vmProperty = sender.GetType().GetProperty(e.PropertyName);
                 var baseName = GetBaseName(vmProperty.Name);
                 var matchingProperties = GetProperties(_view).Where(p => baseName == GetBaseName(p.Name));
                 var viewProperty = matchingProperties.FirstOrDefault();
                 if (viewProperty != null)
+                {
+                    Console.WriteLine("  Matching view property: {0}", viewProperty.Name);
                     UpdateValue(sender, vmProperty, _view, viewProperty);
+                }
             }
 
             static IEnumerable<PropertyInfo> GetProperties(object obj)
