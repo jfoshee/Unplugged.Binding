@@ -42,7 +42,8 @@ namespace Unplugged.Binding
 
             public void Dispose()
             {
-                _viewModel.PropertyChanged -= HandlePropertyChanged;
+                if (_viewModel != null)
+                    _viewModel.PropertyChanged -= HandlePropertyChanged;
             }
 
             void UpdateValue(object viewModel, PropertyInfo vmProperty, object view, PropertyInfo viewProperty)

@@ -212,6 +212,14 @@ namespace Unplugged.Binding.Tests
         }
 
         [Test]
+        public void DoNothingOnDisposeForNonINPC()
+        {
+            var viewModel = new {PumaText = "Hello"};
+            var view = new SampleView();
+            Subject.Bind(viewModel, view).Dispose();
+        }
+
+        [Test]
         public void InvokeWithGivenInvoker()
         {
             Action savedForLater = null;
