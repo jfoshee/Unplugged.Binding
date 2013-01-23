@@ -9,22 +9,29 @@ namespace Unplugged.Binding
     public class BindingFactory
     {
         public Action<Action> UpdateView { get; set; }
+        readonly Dictionary<string, string> _defaultProperties = new Dictionary<string, string> { { "Label", "Text" }};
 
         public IDisposable Bind(object viewModel, object view)
         {
-            return new VvmBinding(viewModel, view, UpdateView);
+            return new VvmBinding(viewModel, view, this);
+        }
+
+        public void DefaultControlProperty(string controlTypeName, string controlPropertyName)
+        {
+            _defaultProperties[controlTypeName] = controlPropertyName;
         }
 
         sealed class VvmBinding : IDisposable
         {
-            readonly Action<Action> _updateView;
+            readonly BindingFactory _parent;
             readonly object _view;
             readonly INotifyPropertyChanged _viewModel;
-            readonly string[] _suffices = { "Label", "Text" };
+            Action<Action> UpdateView { get { return _parent.UpdateView; } }
+            Dictionary<string, string> DefaultProperties { get { return _parent._defaultProperties;  } }
 
-            public VvmBinding(object viewModel, object view, Action<Action> updateView)
+            public VvmBinding(object viewModel, object view, BindingFactory parent)
             {
-                _updateView = updateView;
+                _parent = parent;
                 _view = view;
                 _viewModel = viewModel as INotifyPropertyChanged;
                 var viewProperties = GetProperties(view);
@@ -55,19 +62,24 @@ namespace Unplugged.Binding
                     if (control != null)
                     {
                         var baseName = GetBaseName(viewProperty.Name);
-                        var controlPropertyName = (vmProperty.Name.Length > baseName.Length) ?
-                            vmProperty.Name.Substring(baseName.Length) :
-                            "Text";
+                        var controlPropertyName = "";
+                        if (DefaultProperties.ContainsKey(control.GetType().Name))
+                            controlPropertyName = DefaultProperties[control.GetType().Name];
+                        else if (vmProperty.Name.Length > baseName.Length)
+                            controlPropertyName = vmProperty.Name.Substring(baseName.Length);
                         var controlProperty = control.GetType().GetProperty(controlPropertyName);
                         if (controlProperty != null)
                         {
-                            Console.WriteLine("Setting: {0}.{1} = {2}", control.GetType().Name, controlPropertyName, value);
+                            Console.WriteLine("Setting: {0}.{1} = {2}", viewProperty.Name, controlPropertyName, value);
                             SetValue(control, controlProperty, value);
                         }
                     }
                 }
                 else
+                {
+                    Console.WriteLine("Setting: {0} = {1}", viewProperty.Name, value);
                     SetValue(view, viewProperty, value);
+                }
             }
 
             void SetValue(object view, PropertyInfo viewProperty, object value)
@@ -76,15 +88,16 @@ namespace Unplugged.Binding
                     return;
                 if (value != null && viewProperty.PropertyType == typeof (string) && value.GetType() != typeof (string))
                     value = value.ToString();
-                if (_updateView == null)
+                if (UpdateView == null)
                     viewProperty.SetValue(view, value);
                 else
-                    _updateView(() => viewProperty.SetValue(view, value));
+                    UpdateView(() => viewProperty.SetValue(view, value));
             }
 
             string GetBaseName(string name)
             {
-                foreach (var suffix in _suffices.Where(name.EndsWith))
+                var suffixes = DefaultProperties.Keys.Concat(DefaultProperties.Values);
+                foreach (var suffix in suffixes.Where(name.EndsWith))
                     return name.Substring(0, name.Length - suffix.Length);
                 return name;
             }

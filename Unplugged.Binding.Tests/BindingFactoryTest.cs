@@ -212,7 +212,7 @@ namespace Unplugged.Binding.Tests
         }
 
         [Test]
-        public void DoNothingOnDisposeForNonINPC()
+        public void DoNothingOnDisposeForNonInpc()
         {
             var viewModel = new {PumaText = "Hello"};
             var view = new SampleView();
@@ -317,6 +317,33 @@ namespace Unplugged.Binding.Tests
             Subject.Bind(viewModel, view);
 
             Assert.That(view.PumaLabel.Text, Is.EqualTo("12"));
+        }
+
+        class Meal
+        {
+            public int SuperSize { get; set; }
+        }
+
+        class WeirdView
+        {
+            public Meal Happy { get; set; }
+
+            public WeirdView()
+            {
+                Happy = new Meal();
+            }
+        }
+
+        [Test]
+        public void RegisterControlAndPropertyForBinding()
+        {
+            var viewModel = new {HappyMeal = 12};
+            var view = new WeirdView();
+
+            Subject.DefaultControlProperty("Meal", "SuperSize");
+            Subject.Bind(viewModel, view);
+
+            Assert.That(view.Happy.SuperSize, Is.EqualTo(12));
         }
 
         /// To do: 
