@@ -69,8 +69,9 @@ namespace Unplugged.Binding
             var vmProperty = sender.GetType().GetProperty(e.PropertyName);
             var baseName = GetBaseName(vmProperty.Name);
             var matchingProperties = _view.GetType().GetProperties().Where(p => baseName == GetBaseName(p.Name));
-            var viewProperty = matchingProperties.First();
-            UpdateValue(sender, sender.GetType().GetProperty(e.PropertyName), _view, viewProperty);
+            var viewProperty = matchingProperties.FirstOrDefault();
+            if (viewProperty != null)
+                UpdateValue(sender, vmProperty, _view, viewProperty);
         }
 
         public void Dispose()

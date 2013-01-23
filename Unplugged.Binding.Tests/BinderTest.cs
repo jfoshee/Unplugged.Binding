@@ -234,8 +234,18 @@ namespace Unplugged.Binding.Tests
             Assert.That(view.BasicReference, Is.SameAs((expected)));
         }
 
+        [Test]
+        public void PropertyChangedWithoutPropertyInView()
+        {
+            var viewModel = new BasicViewModel();
+            var view = new SampleView();
+            Subject.Bind(viewModel, view);
+            viewModel.BasicReference = this;
+        }
+
         /// To do: 
         /// - Name conflicts with System.Reflection.Binder
+        /// - Call Bind w/ more than 1 view & viewModel
 
         /// Requirements:
         /// 1. Initialize
