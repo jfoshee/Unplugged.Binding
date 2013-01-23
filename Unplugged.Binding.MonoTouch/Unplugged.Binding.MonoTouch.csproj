@@ -38,14 +38,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="..\Unplugged.Binding\AssemblyInfo.cs">
-      <Link>AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\Unplugged.Binding\Binder.cs">
-      <Link>Binder.cs</Link>
-    </Compile>
-    <Compile Include="..\Unplugged.Binding\ViewModelBase.cs">
-      <Link>ViewModelBase.cs</Link>
+    <Compile Include="..\Unplugged.Binding\*.cs">
     </Compile>
   </ItemGroup>
 </Project>
