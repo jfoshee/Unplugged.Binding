@@ -130,11 +130,17 @@ namespace Unplugged.Binding
             string GetBaseName(MemberInfo member)
             {
                 var name = member.Name;
-                foreach (var suffix in ControlPropertySuffixes.Where(name.EndsWith))
-                    name = name.Substring(0, name.Length - suffix.Length);
-                foreach (var suffix in ControlSuffixes.Where(name.EndsWith))
-                    name = name.Substring(0, name.Length - suffix.Length);
+                name = TrimFirstMatchedSuffix(name, ControlPropertySuffixes);
+                name = TrimFirstMatchedSuffix(name, ControlSuffixes);
                 return name;
+            }
+
+            static string TrimFirstMatchedSuffix(string name, IEnumerable<string> suffixes)
+            {
+                var suffix = suffixes.FirstOrDefault(name.EndsWith);
+                return suffix != null ? 
+                    name.Substring(0, name.Length - suffix.Length) : 
+                    name;
             }
 
             void HandlePropertyChanged(object sender, PropertyChangedEventArgs e)
