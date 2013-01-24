@@ -39,11 +39,11 @@ namespace Unplugged.Binding.Tests
                 set { _pumaText = value; Notify("PumaText"); }
             }
 
-            string _privateText;
-            public string PrivateText
+            string _privateLabelText;
+            public string PrivateLabelText
             {
-                get { return _privateText; }
-                set { _privateText = value; Notify("PrivateText"); }
+                get { return _privateLabelText; }
+                set { _privateLabelText = value; Notify("PrivateLabelText"); }
             }
         }
 
@@ -289,7 +289,7 @@ namespace Unplugged.Binding.Tests
             var view = new SampleViewWithSuffix();
             Subject.Bind(viewModel, view);
 
-            viewModel.PrivateText = expected;
+            viewModel.PrivateLabelText = expected;
 
             Assert.That(view.PrivateLabelText(), Is.EqualTo(expected));
         }
@@ -350,12 +350,23 @@ namespace Unplugged.Binding.Tests
             var viewModel = new WeirdViewModel { HappyMeal = 12 };
             var view = new WeirdView();
 
-            Subject.DefaultControlProperty("Meal", "SuperSize");
+            Subject.AddControlPropertyConvention("Meal", "SuperSize");
             Subject.Bind(viewModel, view);
             Assert.That(view.Happy.SuperSize, Is.EqualTo(12));
 
             viewModel.HappyMeal = 31;
             Assert.That(view.Happy.SuperSize, Is.EqualTo(31));
+        }
+
+        [Test]
+        public void ViewModelPropertySuffixedWithControlNameAndPropertyName()
+        {
+            var viewModel = new { HappyMealSuperSize = 15 };
+            var view = new WeirdView();
+
+            Subject.AddControlPropertyConvention("Meal", "SuperSize");
+            Subject.Bind(viewModel, view);
+            Assert.That(view.Happy.SuperSize, Is.EqualTo(15));
         }
 
         class FunctionViewModel

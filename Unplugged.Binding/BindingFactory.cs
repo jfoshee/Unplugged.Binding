@@ -10,16 +10,16 @@ namespace Unplugged.Binding
     {
         public Action<Action> UpdateView { get; set; }
         public bool UseViewModelMethods { get; set; }
-        readonly Dictionary<string, string> _defaultProperties = new Dictionary<string, string> { { "Label", "Text" } };
+        readonly Dictionary<string, string> _controlProperties = new Dictionary<string, string> { { "Label", "Text" } };
 
         public IDisposable Bind(object viewModel, object view)
         {
             return new VvmBinding(viewModel, view, this);
         }
 
-        public void DefaultControlProperty(string controlTypeName, string controlPropertyName)
+        public void AddControlPropertyConvention(string controlTypeName, string controlPropertyName)
         {
-            _defaultProperties[controlTypeName] = controlPropertyName;
+            _controlProperties[controlTypeName] = controlPropertyName;
         }
 
         sealed class VvmBinding : IDisposable
@@ -28,7 +28,9 @@ namespace Unplugged.Binding
             readonly object _view;
             readonly INotifyPropertyChanged _viewModel;
             Action<Action> UpdateView { get { return _parent.UpdateView; } }
-            Dictionary<string, string> DefaultProperties { get { return _parent._defaultProperties;  } }
+            Dictionary<string, string> ControlProperties { get { return _parent._controlProperties;  } }
+            IEnumerable<string> ControlSuffixes { get { return ControlProperties.Keys; } }
+            IEnumerable<string> ControlPropertySuffixes { get { return ControlProperties.Values; } } 
             bool UseViewModelMethods { get { return _parent.UseViewModelMethods; } }
 
             public VvmBinding(object viewModel, object view, BindingFactory parent)
@@ -103,8 +105,8 @@ namespace Unplugged.Binding
                 if (control == null) return;
                 var baseName = GetBaseName(viewProperty);
                 var controlPropertyName = "";
-                if (DefaultProperties.ContainsKey(control.GetType().Name))
-                    controlPropertyName = DefaultProperties[control.GetType().Name];
+                if (ControlProperties.ContainsKey(control.GetType().Name))
+                    controlPropertyName = ControlProperties[control.GetType().Name];
                 else if (vmMemberName.Length > baseName.Length)
                     controlPropertyName = vmMemberName.Substring(baseName.Length);
                 var controlProperty = control.GetType().GetProperty(controlPropertyName);
@@ -128,8 +130,9 @@ namespace Unplugged.Binding
             string GetBaseName(MemberInfo member)
             {
                 var name = member.Name;
-                var suffixes = DefaultProperties.Keys.Concat(DefaultProperties.Values);
-                foreach (var suffix in suffixes.Where(name.EndsWith))
+                foreach (var suffix in ControlPropertySuffixes.Where(name.EndsWith))
+                    name = name.Substring(0, name.Length - suffix.Length);
+                foreach (var suffix in ControlSuffixes.Where(name.EndsWith))
                     name = name.Substring(0, name.Length - suffix.Length);
                 return name;
             }
