@@ -395,8 +395,8 @@ namespace Unplugged.Binding.Tests
         }
 
         /// To do: 
-        /// - Getting a value from a function
         /// - Hooking a VM event handler to a view's event
+        /// - Use ILog instead of Console
 
         /// Requirements:
         /// 1. Initialize
@@ -419,7 +419,6 @@ namespace Unplugged.Binding.Tests
         /// - Log: Control does not have property of given name (e.g. Text)
         /// - Log: Mismatched types
         /// - Cache reflection / pairing of VM member to View member
-        /// - Warn for VM properties that could not be bound
         /// 
 
         public BindingFactory Subject { get; set; }

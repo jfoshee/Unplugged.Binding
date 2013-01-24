@@ -65,7 +65,10 @@ namespace Unplugged.Binding
                     var baseName = GetBaseName(vmMethod);
                     var viewProperty = GetViewProperty(baseName);
                     if (viewProperty == null)
+                    {
+                        Console.WriteLine("Binding warning: No view property for Method: {0}()", vmMethod.Name);
                         continue;
+                    }
                     var value = vmMethod.Invoke(viewModel);
                     UpdateValue(vmMethod.ReturnType, vmMethod.Name, value, view, viewProperty);
                 }
@@ -74,7 +77,11 @@ namespace Unplugged.Binding
             void UpdateValue(object viewModel, PropertyInfo vmProperty, object view)
             {
                 var viewProperty = GetViewProperty(vmProperty);
-                if (viewProperty == null) return;
+                if (viewProperty == null)
+                {
+                    Console.WriteLine("Binding warning: No view property for Property: {0}", vmProperty.Name);
+                    return;
+                }
                 UpdateValue(viewModel, vmProperty, view, viewProperty);
             }
 
