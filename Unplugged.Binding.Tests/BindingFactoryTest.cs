@@ -334,16 +334,28 @@ namespace Unplugged.Binding.Tests
             }
         }
 
+        private class WeirdViewModel : ViewModelBase
+        {
+            private int _happyMeal;
+            public int HappyMeal
+            {
+                get { return _happyMeal; }
+                set { _happyMeal = value; Notify("HappyMeal"); }
+            }
+        }
+
         [Test]
         public void RegisterControlAndPropertyForBinding()
         {
-            var viewModel = new {HappyMeal = 12};
+            var viewModel = new WeirdViewModel { HappyMeal = 12 };
             var view = new WeirdView();
 
             Subject.DefaultControlProperty("Meal", "SuperSize");
             Subject.Bind(viewModel, view);
-
             Assert.That(view.Happy.SuperSize, Is.EqualTo(12));
+
+            viewModel.HappyMeal = 31;
+            Assert.That(view.Happy.SuperSize, Is.EqualTo(31));
         }
 
         /// To do: 
@@ -367,7 +379,9 @@ namespace Unplugged.Binding.Tests
         /// Nice to Have:
         /// - Log: Control does not have property of given name (e.g. Text)
         /// - Log: Mismatched types
-        /// - Cache reflection
+        /// - Cache reflection / pairing of VM member to View member
+        /// - Warn for VM properties that could not be bound
+        /// 
 
         public BindingFactory Subject { get; set; }
         [SetUp]

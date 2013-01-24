@@ -34,14 +34,10 @@ namespace Unplugged.Binding
                 _parent = parent;
                 _view = view;
                 _viewModel = viewModel as INotifyPropertyChanged;
-                var viewProperties = GetProperties(view);
-                foreach (var viewProperty in viewProperties)
+                var vmProperties = GetProperties(viewModel);
+                foreach (var vmProperty in vmProperties)
                 {
-                    var baseName = GetBaseName(viewProperty.Name);
-                    var matchingProperties = GetProperties(viewModel).Where(p => p.Name.StartsWith(baseName));
-                    var vmProperty = matchingProperties.FirstOrDefault();
-                    if (vmProperty == null) continue;
-                    UpdateValue(viewModel, vmProperty, view, viewProperty);
+                    UpdateValue(viewModel, vmProperty, view);
                 }
                 if (_viewModel != null)
                     _viewModel.PropertyChanged += HandlePropertyChanged;
@@ -51,6 +47,13 @@ namespace Unplugged.Binding
             {
                 if (_viewModel != null)
                     _viewModel.PropertyChanged -= HandlePropertyChanged;
+            }
+
+            void UpdateValue(object viewModel, PropertyInfo vmProperty, object view)
+            {
+                var viewProperty = GetViewProperty(vmProperty);
+                if (viewProperty == null) return;
+                UpdateValue(viewModel, vmProperty, view, viewProperty);
             }
 
             void UpdateValue(object viewModel, PropertyInfo vmProperty, object view, PropertyInfo viewProperty)
@@ -98,22 +101,22 @@ namespace Unplugged.Binding
             {
                 var suffixes = DefaultProperties.Keys.Concat(DefaultProperties.Values);
                 foreach (var suffix in suffixes.Where(name.EndsWith))
-                    return name.Substring(0, name.Length - suffix.Length);
+                    name = name.Substring(0, name.Length - suffix.Length);
                 return name;
             }
 
             void HandlePropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                Console.WriteLine("PropertyChanged: {0}", e.PropertyName);
                 var vmProperty = sender.GetType().GetProperty(e.PropertyName);
+                UpdateValue(sender, vmProperty, _view);
+            }
+
+            PropertyInfo GetViewProperty(PropertyInfo vmProperty)
+            {
                 var baseName = GetBaseName(vmProperty.Name);
                 var matchingProperties = GetProperties(_view).Where(p => baseName == GetBaseName(p.Name));
                 var viewProperty = matchingProperties.FirstOrDefault();
-                if (viewProperty != null)
-                {
-                    Console.WriteLine("  Matching view property: {0}", viewProperty.Name);
-                    UpdateValue(sender, vmProperty, _view, viewProperty);
-                }
+                return viewProperty;
             }
 
             static IEnumerable<PropertyInfo> GetProperties(object obj)
@@ -138,4 +141,3 @@ namespace Unplugged.Binding
         }
     }
 }
-
