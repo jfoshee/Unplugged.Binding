@@ -223,7 +223,7 @@ namespace Unplugged.Binding.Tests
         public void InvokeWithGivenInvoker()
         {
             Action savedForLater = null;
-            Action<Action> updateViewInvoker = (a) => { savedForLater = a; };
+            Action<Action> updateViewInvoker = a => { savedForLater = a; };
             Subject.UpdateView = updateViewInvoker;
             const string expected = "Some changed text";
             var viewModel = new BasicViewModel();
@@ -358,15 +358,54 @@ namespace Unplugged.Binding.Tests
             Assert.That(view.Happy.SuperSize, Is.EqualTo(31));
         }
 
+        class FunctionViewModel
+        {
+            public string PumaText(int arg)
+            {
+                throw new NotSupportedException();
+            }
+
+            public string PumaText()
+            {
+                return "Value returned from a function";
+            }
+
+            public int RockDove()
+            {
+                return 12;
+            }
+
+            public void SomeOther()
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        [Test]
+        public void InitializeFromFunction()
+        {
+            Subject.UseViewModelMethods = true;
+            var vm = new FunctionViewModel();
+            var view = new SampleViewWithSuffix();
+
+            Subject.Bind(vm, view);
+
+            Assert.That(view.PumaLabel.Text, Is.EqualTo(vm.PumaText()));
+            Assert.That(view.RockDoveLabel.Text, Is.EqualTo("12"));
+        }
+
         /// To do: 
-        /// - 
+        /// - Getting a value from a function
+        /// - Hooking a VM event handler to a view's event
 
         /// Requirements:
         /// 1. Initialize
         /// 2. Update on NotifyPropertyChanged
-        ///   a. Immediately
-        ///   b. On a specific thread
+        ///    a. Immediately
+        ///    b. On a specific thread
         /// 3. Unhook in dispose
+        ///    a. PropertyChanged
+        ///    b. Any other event handlers
         /// 4. Ignore properties w/out matching name
         /// 
         /// Naming Conventions
